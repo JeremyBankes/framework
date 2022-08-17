@@ -43,12 +43,27 @@ export default class ServerApplication {
         this._certificate = Data.get(options, 'ssl.certificate');
         this._allowOrigins = Data.get(options, 'allowOrigins', []);
         this.mimeTypes = Data.clone(mimeTypes, true);
-
         this._handlers = [];
 
         if (Data.has(options, 'static')) {
             this.addHandler(new StaticFileHandler(options.static));
         }
+    }
+
+    public get protocol() {
+        return this._protocol;
+    }
+
+    public get host() {
+        return this._host;
+    }
+
+    public get port() {
+        return this._port;
+    }
+
+    public get origin() {
+        return `${this.protocol}://${this.host}${this.port === 80 ? '' : ':' + this.port}`;
     }
 
     public get secure() {

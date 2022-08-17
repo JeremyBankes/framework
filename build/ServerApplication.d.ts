@@ -24,6 +24,10 @@ export default class ServerApplication {
     private _allowOrigins;
     private _handlers;
     constructor(options: ServerApplicationOptions);
+    get protocol(): string;
+    get host(): string;
+    get port(): number;
+    get origin(): string;
     get secure(): boolean;
     get endpoint(): string;
     addHandler(handler: RouteHandler): void;

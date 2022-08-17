@@ -31,6 +31,18 @@ export default class ServerApplication {
             this.addHandler(new StaticFileHandler(options.static));
         }
     }
+    get protocol() {
+        return this._protocol;
+    }
+    get host() {
+        return this._host;
+    }
+    get port() {
+        return this._port;
+    }
+    get origin() {
+        return `${this.protocol}://${this.host}${this.port === 80 ? '' : ':' + this.port}`;
+    }
     get secure() {
         return this._key !== null && this._certificate !== null;
     }

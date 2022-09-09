@@ -15,8 +15,8 @@ export default class Response {
     constructor(application: ServerApplication, handle: ServerResponse);
     send(options: SendOptions): Promise<unknown>;
     sendFile(filePath: string, options?: SendOptions): Promise<void>;
-    sendString(string: string, options?: SendOptions): void;
-    sendRendered(content: string, options: SendOptions): void;
+    sendString(string: string, options?: SendOptions): Promise<void>;
+    sendRendered(content: string, options?: SendOptions): Promise<void>;
     redirect(path: string, options?: SendOptions): void;
     get finished(): boolean;
 }

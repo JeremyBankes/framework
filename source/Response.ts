@@ -54,16 +54,16 @@ export default class Response {
         });
     }
 
-    public sendString(string: string, options: SendOptions = {}) {
-        this.send({
+    public async sendString(string: string, options: SendOptions = {}) {
+        await this.send({
             headers: { 'Content-Type': 'text/plain' },
             data: string,
             ...options
         });
     }
 
-    public sendRendered(content: string, options: SendOptions) {
-        this.sendFile(content, options);
+    public async sendRendered(content: string, options: SendOptions = {}) {
+        await this.sendFile(content, options);
     }
 
     public redirect(path: string, options: SendOptions = {}) {

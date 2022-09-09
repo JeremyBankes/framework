@@ -42,10 +42,14 @@ export default class Response {
         });
     }
     sendString(string, options = {}) {
-        this.send(Object.assign({ headers: { 'Content-Type': 'text/plain' }, data: string }, options));
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.send(Object.assign({ headers: { 'Content-Type': 'text/plain' }, data: string }, options));
+        });
     }
-    sendRendered(content, options) {
-        this.sendFile(content, options);
+    sendRendered(content, options = {}) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.sendFile(content, options);
+        });
     }
     redirect(path, options = {}) {
         this.send(Object.assign({ headers: { 'Location': path }, status: 301 }, options));

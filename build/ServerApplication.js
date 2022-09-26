@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { Data } from '@jeremy-bankes/toolbox';
 import http from 'http';
 import https from 'https';
@@ -17,6 +8,15 @@ import RouteHandler from './RotueHandler.js';
 import { StaticFileHandler } from './tools.js';
 import { Method } from './types.js';
 export default class ServerApplication {
+    mimeTypes;
+    _server;
+    _protocol;
+    _host;
+    _port;
+    _key;
+    _certificate;
+    _allowOrigins;
+    _handlers;
     constructor(options) {
         this._server = null;
         this._protocol = Data.get(options, 'protocol', 'http');
@@ -60,19 +60,17 @@ export default class ServerApplication {
     put(path, handler) { this.route(path, Method.PUT, handler); }
     patch(path, handler) { this.route(path, Method.PATCH, handler); }
     delete(path, handler) { this.route(path, Method.DELETE, handler); }
-    start() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const serverModule = this.secure ? https : http;
-            const options = {};
-            if (this.secure) {
-                options.key = this._key;
-                options.cert = this._certificate;
-            }
-            this._server = serverModule.createServer(options, (requestHandle, responseHandle) => {
-                this._handleRequest(new Request(this, requestHandle), new Response(this, responseHandle));
-            });
-            yield new Promise((resolve) => this._server.listen(this._port, this._host, resolve));
+    async start() {
+        const serverModule = this.secure ? https : http;
+        const options = {};
+        if (this.secure) {
+            options.key = this._key;
+            options.cert = this._certificate;
+        }
+        this._server = serverModule.createServer(options, (requestHandle, responseHandle) => {
+            this._handleRequest(new Request(this, requestHandle), new Response(this, responseHandle));
         });
+        await new Promise((resolve) => this._server.listen(this._port, this._host, resolve));
     }
     getMimeType(filePathOrFileName) {
         const match = filePathOrFileName.match(/(?<=\.)[a-z0-9]+$/gi);
@@ -84,18 +82,16 @@ export default class ServerApplication {
             return extension in mimeTypes ? mimeTypes[extension] : mimeTypes.txt;
         }
     }
-    _handleRequest(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield this._executeHandlers(request, response);
-                if (!response.finished) {
-                    response.sendString(`No routes registered to handle ${request.method} ${request.path}.`, { status: 404 });
-                }
+    async _handleRequest(request, response) {
+        try {
+            await this._executeHandlers(request, response);
+            if (!response.finished) {
+                response.sendString(`No routes registered to handle ${request.method} ${request.path}.`, { status: 404 });
             }
-            catch (error) {
-                response.sendString(`Fatal error. ${error instanceof Error ? error.stack : error.toString()}`, { status: 400 });
-            }
-        });
+        }
+        catch (error) {
+            response.sendString(`Fatal error. ${error instanceof Error ? error.stack : error.toString()}`, { status: 400 });
+        }
     }
     isPathMatch(path, test) {
         if (test === '*') {
@@ -103,16 +99,14 @@ export default class ServerApplication {
         }
         return path === test;
     }
-    _executeHandlers(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-            for (const handler of this._handlers) {
-                if (this.isPathMatch(request.path, handler.path)) {
-                    yield Promise.resolve(handler.handle(request, response));
-                    if (response.finished) {
-                        break;
-                    }
+    async _executeHandlers(request, response) {
+        for (const handler of this._handlers) {
+            if (this.isPathMatch(request.path, handler.path)) {
+                await Promise.resolve(handler.handle(request, response));
+                if (response.finished) {
+                    break;
                 }
             }
-        });
+        }
     }
 }

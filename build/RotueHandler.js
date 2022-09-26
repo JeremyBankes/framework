@@ -1,4 +1,7 @@
 export default class RouteHandler {
+    _path;
+    _method;
+    _handleCallback;
     constructor(path, method, handleCallback = null) {
         this._path = path;
         this._method = method;

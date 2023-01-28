@@ -37,7 +37,7 @@ export default class ServerApplication {
     public constructor(options: ServerApplicationOptions) {
         this._server = null;
         this._protocol = Data.get(options, 'protocol', 'http');
-        this._host = Data.get(options, 'host', 'localhost');
+        this._host = Data.get(options, 'host', '127.0.0.1');
         this._port = Data.get(options, 'port', 80);
         this._key = Data.get(options, 'ssl.key');
         this._certificate = Data.get(options, 'ssl.certificate');
@@ -67,7 +67,7 @@ export default class ServerApplication {
     }
 
     public get secure() {
-        return this._key !== null && this._certificate !== null;
+        return this._key !== undefined && this._certificate !== undefined;
     }
 
     public get endpoint() {
@@ -90,9 +90,7 @@ export default class ServerApplication {
 
     public async start() {
         const serverModule = this.secure ? https : http;
-        const options: ServerOptions = {
-
-        };
+        const options: ServerOptions = {};
 
         if (this.secure) {
             options.key = this._key;
@@ -103,7 +101,7 @@ export default class ServerApplication {
             this._handleRequest(new Request(this, requestHandle), new Response(this, responseHandle));
         });
 
-        await new Promise<void>((resolve) => this._server.listen(this._port, this._host, resolve));
+        await new Promise<void>((resolve) => this._server.listen(this.port, this.host, resolve));
     }
 
     public getMimeType(filePathOrFileName: string) {

@@ -22,6 +22,10 @@ export default class Response {
         this._handle = handle;
     }
 
+    public setHeader(name: string, value: string | number) {
+        this._handle.setHeader(name, value);
+    }
+
     public async send(options: SendOptions) {
         return await new Promise((resolve) => {
             this._handle.writeHead(
